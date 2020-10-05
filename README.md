@@ -1,13 +1,43 @@
+This is a fork of https://github.com/sradevski/tobii-eyex-websocket-server
+
+
 ## Synopsis
 
-**Tobii Web Socket Server** is a Web Socket Server that wraps the Tobii EyeX SDK and transmits the data through web sockets. It is primarily used for [EyeNav](https://github.com/sradevski/eyenav) although you may use it in your application.
+**Tobii Web Socket Server** is a Web Socket Server that wraps the Tobii EyeX SDK and transmits the data through web sockets. We used it in our EyeCaptain Electron application to stream the X/Y positions to the app.
 
 ## Usage
 
-You can download an executable if you don't want to compile the project by yourself. To do that, simply download the [Release Folder](Release/) to a location of your choice.
-In order to run the server, open the terminal, navigate to the location where the Release folder is located, and run `TobiiSocketServer.exe`, which will start the server on the default port (8887). You can optionally pass a custom port number like `TobiiSocketServer.exe 8886`. Note that the Tobii EyeX Server must be running before using the Tobii Web Socket Server.
+- run `TobiiSocketServer.exe`, which will start the server on the default port (8887)
+- you can optionally pass a custom port number like `TobiiSocketServer.exe 8886`
 
-If you wish, you could also build the project by yourself. For my convenience I just uploaded the whole Visual Studio project, so you can just open it in Visual Studio and build the project.
+## Usage in electron
+
+- in your Electron main application, start the Server as a background process:
+
+```
+var child = spawn("path/to/TobiiSocketServer.exe", {
+    //stdio: "ignore"
+  });
+```
+
+- After starting, tell the renderer process to connect to the websocket and do something with the position information
+
+```
+var ws = new WebSocket('ws://' + ipAddress + ':' + port);
+ws.on('open', function () {
+  // Tracker connected
+});
+
+ws.on('close', function () {
+  // Tracker disconnected
+});
+
+ws.on('message', function (msg, flags) {
+  // Parse json position message:
+  var tmpPosition = JSON.parse(msg);
+  console.log(tmpPosition)
+});
+```
 
 ## License
 
